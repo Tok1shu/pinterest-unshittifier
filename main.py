@@ -15,7 +15,8 @@ files_extensions = [
     "jpg",
     "png",
     "jpeg",
-    "gif"
+    "gif",
+    "webp"
 ]
 
 def get_no_ext_files():
