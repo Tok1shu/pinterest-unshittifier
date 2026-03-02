@@ -33,5 +33,7 @@ python main.py
 ```
 
 
-![XiKxmFjl](https://github.com/user-attachments/assets/41ef03c6-11b0-4857-a630-7feef84a9215)
+<img src="https://github.com/user-attachments/assets/41ef03c6-11b0-4857-a630-7feef84a9215" height="300" align="left" alt="XiKxmFjl">
+<img src="https://github.com/user-attachments/assets/c82320bf-25f7-418a-853d-7e7a651016a8" height="300" alt="image">
 
+<br clear="left"/>
