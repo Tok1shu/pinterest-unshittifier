@@ -2,6 +2,9 @@ import os
 import random
 import string
 import re
+import time
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 download_dir = os.path.expanduser("~/Downloads")
 random_file_name_length = 8
@@ -60,17 +63,51 @@ def rename_file(file, new_name):
         os.path.join(download_dir, target_name)
     )
 
+
 def generate_random_name():
     return ''.join(random.choices(string.ascii_letters + string.digits, k=random_file_name_length))
 
-if __name__ == "__main__":
+
+def process_once():
     no_ext_files = get_no_ext_files()
-    if no_ext_files:
-        print("Files without extension:")
-        for file in no_ext_files:
-            new_name = generate_random_name()
-            ext = infer_extension(file)
-            rename_file(file, new_name)
-            print(f" {file} -> {new_name}{ext}")
-    else:
-        print("No files without extension found.")
+    for file in no_ext_files:
+        new_name = generate_random_name()
+        ext = infer_extension(file)
+        rename_file(file, new_name)
+        print(f"{file} -> {new_name}{ext}", flush=True)
+
+
+class DownloadsHandler(FileSystemEventHandler):
+    def on_created(self, event):
+        if not event.is_directory:
+            process_once()
+
+    def on_moved(self, event):
+        if not event.is_directory:
+            process_once()
+
+    def on_modified(self, event):
+        if not event.is_directory:
+            process_once()
+
+
+def run_forever():
+    process_once()
+
+    event_handler = DownloadsHandler()
+    observer = Observer()
+    observer.schedule(event_handler, download_dir, recursive=False)
+    observer.start()
+
+    try:
+        while True:
+            time.sleep(5)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        observer.stop()
+        observer.join()
+
+
+if __name__ == "__main__":
+    run_forever()
