@@ -68,14 +68,32 @@ def rename_file(file, new_name):
 def generate_random_name():
     return ''.join(random.choices(string.ascii_letters + string.digits, k=random_file_name_length))
 
+def is_file_stable(filepath, delay=1):
+    initial_size = -1
+    while True:
+        try:
+            current_size = os.path.getsize(filepath)
+            if current_size == initial_size and current_size > 0:
+                return True
+            initial_size = current_size
+            time.sleep(delay)
+        except OSError:
+            return False
 
 def process_once():
     no_ext_files = get_no_ext_files()
     for file in no_ext_files:
-        new_name = generate_random_name()
-        ext = infer_extension(file)
-        rename_file(file, new_name)
-        print(f"{file} -> {new_name}{ext}", flush=True)
+        filepath = os.path.join(download_dir, file)
+
+        while not is_file_stable(filepath):
+            if not os.path.exists(filepath):
+                break
+
+        if os.path.exists(filepath):
+            new_name = generate_random_name()
+            ext = infer_extension(file)
+            rename_file(file, new_name)
+            print(f"{file} -> {new_name}{ext}", flush=True)
 
 
 class DownloadsHandler(FileSystemEventHandler):
